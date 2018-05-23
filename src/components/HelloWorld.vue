@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div>
+  <div class="panel">
+    <div class="page-header">
       <h1>Ache o endereço com o CEP!</h1>
       <label>Cep</label><input type="number" v-model="cep"/><button @click="getAdress(cep)">Enviar</button>
       <label>Numero:</label><input type="number" v-model="numero"/>
@@ -26,6 +26,8 @@
 <script>
 import axios from 'axios';
 import VueLocalStorage from 'vue-localstorage'
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 export default {
   name: 'HelloWorld',
