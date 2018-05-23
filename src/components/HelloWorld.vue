@@ -1,94 +1,40 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
+  <div>
+    <h1>Ache o endereço com o CEP!</h1>
+    <label>Cep</label><input type="number" v-model="cep"/><button @click="getAdress(cep)">Enviar</button>
+    <label>Numero:</label><input type="number" v-model="numero"/>
+    <label>Completemento:</label><input type="text" v-model="complemento"/>
+    {{logradouro}} {{bairro}} {{localidade}}
+    {{numero}} {{complemento}}
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      cep: '',
+      logradouro:'',
+      complemento:'',
+      bairro:'',
+      localidade: '',
+      uf:'',
+      numero:'',
+    }
+  },
+  methods: {
+    getAdress(cep){
+      console.log(cep);
+      axios.get('https://viacep.com.br/ws/' + cep + '/json/').then( ret =>{
+        console.log(ret);
+         this.logradouro = ret.data.logradouro;
+         this.bairro = ret.data.bairro;
+         this.localidade = ret.data.localidade;
+         this.uf = ret.data.uf;
+      })
     }
   }
 }
