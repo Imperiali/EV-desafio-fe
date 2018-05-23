@@ -1,25 +1,80 @@
 <template>
-  <div class="panel">
-    <div class="page-header">
-      <h1>Ache o endereço com o CEP!</h1>
-      <label>Cep</label><input type="number" v-model="cep"/><button @click="getAdress(cep)">Enviar</button>
-      <label>Numero:</label><input type="number" v-model="numero"/>
-      <label>Completemento:</label><input type="text" v-model="complemento"/>
-      <label>Nome:</label><input type="text" v-model="nome"/>
-      {{logradouro}} {{bairro}} {{localidade}}
-      {{numero}} {{complemento}}
-      <button v-if="!editar" @click="adicionarEndereco">Adicionar</button>
-      <button v-else @click="editaEndereco">Editar</button>
-    </div>
-    <div>
-      <ul>
-        <li v-for="(local, i) in enderecos" :key="i">
-          {{local.nome}} - {{local.cep}}
-          <span @click="removerEndereco(i)">X</span>
-          <span @click="habilitarEdicao(i)">i</span>
-        </li>
-      </ul>
-    </div>
+  <div>
+    <b-container>
+      <h1>Lista de endereços</h1>
+      <b-row>
+        <b-col>
+          <b-row>
+
+            <b-col>
+              <label>Nome:</label>
+            </b-col>
+            <b-col>
+              <input class="input-sm" type="text" v-model="nome"/>
+            </b-col>
+
+          </b-row>
+          <b-row>
+
+            <b-col>
+              <label>Cep</label>
+            </b-col>
+
+            <b-col>
+              <input class="input-sm" type="number" v-model="cep"/>
+            </b-col>
+
+            <b-col>
+              <button class="btn btn-default" @click="getAdress(cep)">Enviar</button>
+            </b-col>
+
+          </b-row>
+          <b-row>
+            {{logradouro}} {{bairro}} {{localidade}}
+            {{numero}} {{complemento}}
+          </b-row>
+          <b-row>
+
+            <b-col>
+              <label>Numero:</label>
+            </b-col>
+
+            <b-col>
+              <input class="input-sm" type="number" v-model="numero"/>
+            </b-col>
+
+          </b-row>
+          <b-row>
+
+            <b-col>
+              <label>Completemento:</label>
+            </b-col>
+
+            <b-col>
+              <input class="input-sm" type="text" v-model="complemento"/>
+            </b-col>
+
+
+          </b-row>
+          <b-row>
+            <b-col align-self="end">
+              <button class="btn btn-default" v-if="!editar" @click="adicionarEndereco">Adicionar</button>
+              <button class="btn btn-default" v-else @click="editaEndereco">Editar</button>
+            </b-col>
+          </b-row>
+        </b-col>
+        <b-col>
+          <ul class="list-group">
+            <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
+              {{local.nome}} - {{local.cep}}
+              <span @click="removerEndereco(i)">X</span>
+              <span @click="habilitarEdicao(i)">i</span>
+            </li>
+          </ul>
+        </b-col>
+
+      </b-row>
+    </b-container>
   </div>
 </template>
 
@@ -149,3 +204,11 @@ a {
   color: #42b983;
 }
 </style>
+
+<!--b-container>
+  <b-row>
+    <b-col> 1 of 3</b-col>
+    <b-col> 2 of 3</b-col>
+    <b-col> 3 of 3</b-col>
+  </b-row>
+</b-container-->
