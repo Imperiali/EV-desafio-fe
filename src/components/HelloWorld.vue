@@ -67,8 +67,8 @@
           <ul class="list-group">
             <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
               {{local.nome}} - {{local.cep}}
-              <span @click="removerEndereco(i)">X</span>
-              <span @click="habilitarEdicao(i)">i</span>
+              <span @click="removerEndereco(i)" class="fas fa-times"></span>
+              <span @click="habilitarEdicao(i)" class="fas fa-pencil-alt"></span>
             </li>
           </ul>
         </b-col>
@@ -110,13 +110,11 @@ export default {
     },
     watch: {
       enderecos() {
-        //if (isLocalStorage() /* function to detect if localstorage is supported*/) {
-          localStorage.setItem('enderecos', JSON.stringify(this.enderecos));
-        //}
+        
+        localStorage.setItem('enderecos', JSON.stringify(this.enderecos));
+        
         console.log(JSON.parse(localStorage.getItem('enderecos')));
-        // console.log(value);
-        // console.log(this.$localStorage.get('enderecos'));
-        // this.$localStorage.set('enderecos', 'foi bagaça');
+        
       }
     },
     methods: {
