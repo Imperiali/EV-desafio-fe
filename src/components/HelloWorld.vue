@@ -1,11 +1,23 @@
 <template>
   <div>
-    <h1>Ache o endereço com o CEP!</h1>
-    <label>Cep</label><input type="number" v-model="cep"/><button @click="getAdress(cep)">Enviar</button>
-    <label>Numero:</label><input type="number" v-model="numero"/>
-    <label>Completemento:</label><input type="text" v-model="complemento"/>
-    {{logradouro}} {{bairro}} {{localidade}}
-    {{numero}} {{complemento}}
+    <div>
+      <h1>Ache o endereço com o CEP!</h1>
+      <label>Cep</label><input type="number" v-model="cep"/><button @click="getAdress(cep)">Enviar</button>
+      <label>Numero:</label><input type="number" v-model="numero"/>
+      <label>Completemento:</label><input type="text" v-model="complemento"/>
+      <label>Nome:</label><input type="text" v-model="nome"/>
+      {{logradouro}} {{bairro}} {{localidade}}
+      {{numero}} {{complemento}}
+      <button @click="adicionarEndereco">Adicionar</button>
+    </div>
+    <div>
+      <ul>
+        <li v-for="(local, i) in enderecos" :key="i">
+          {{local.nome}} - {{local.cep}}
+          <span @click="removerEndereco(i)">X</span>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -16,6 +28,7 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+      nome: '',
       cep: '',
       logradouro:'',
       complemento:'',
@@ -23,9 +36,35 @@ export default {
       localidade: '',
       uf:'',
       numero:'',
+      enderecos: []
     }
   },
   methods: {
+    removerEndereco(index){
+      this.enderecos.splice(index, 1);
+    },
+    adicionarEndereco(){
+      this.enderecos.unshift({
+        nome : this.nome,
+        cep : this.cep,
+        localidade : this.localidade,
+        logradouro : this.logradouro,
+        bairro : this.bairro,
+        numero : this.numero,
+        complemento : this.complemento,
+        uf : this.uf
+      });
+      this.limparInfos();
+    },
+    limparInfos(){
+      this.cep = '';
+      this.localidade = '';
+      this.logradouro = '';
+      this.bairro = '';
+      this.numero = '';
+      this.complemento = '';
+      this.uf = '';
+    },
     getAdress(cep){
       console.log(cep);
       axios.get('https://viacep.com.br/ws/' + cep + '/json/').then( ret =>{
