@@ -8,13 +8,15 @@
       <label>Nome:</label><input type="text" v-model="nome"/>
       {{logradouro}} {{bairro}} {{localidade}}
       {{numero}} {{complemento}}
-      <button @click="adicionarEndereco">Adicionar</button>
+      <button v-if="!editar" @click="adicionarEndereco">Adicionar</button>
+      <button v-else @click="editaEndereco">Editar</button>
     </div>
     <div>
       <ul>
         <li v-for="(local, i) in enderecos" :key="i">
           {{local.nome}} - {{local.cep}}
           <span @click="removerEndereco(i)">X</span>
+          <span @click="habilitarEdicao(i)">i</span>
         </li>
       </ul>
     </div>
@@ -29,6 +31,8 @@ export default {
   name: 'HelloWorld',
     data() {
       return {
+        editar: false,
+        enderecoIndex:'',
         nome: '',
         cep: '',
         logradouro: '',
@@ -40,15 +44,53 @@ export default {
         enderecos: []
       }
     },
+    created() {
+      let storageLocal = JSON.parse(localStorage.getItem('enderecos'));
+      console.log(storageLocal);
+      if(storageLocal){
+        this.enderecos = storageLocal;
+      }
+    },
     watch: {
-      enderecos(value) {
-        console.log(this.enderecos);
-        console.log(value);
-        console.log(this.$localStorage.get('enderecos'));
-        this.$localStorage.set('enderecos', 'foi bagaça');
+      enderecos() {
+        //if (isLocalStorage() /* function to detect if localstorage is supported*/) {
+          localStorage.setItem('enderecos', JSON.stringify(this.enderecos));
+        //}
+        console.log(JSON.parse(localStorage.getItem('enderecos')));
+        // console.log(value);
+        // console.log(this.$localStorage.get('enderecos'));
+        // this.$localStorage.set('enderecos', 'foi bagaça');
       }
     },
     methods: {
+      editaEndereco(){
+        this.enderecos[this.enderecoIndex] = {
+          nome: this.nome,
+          cep: this.cep,
+          localidade: this.localidade,
+          logradouro: this.logradouro,
+          bairro: this.bairro,
+          numero: this.numero,
+          complemento: this.complemento,
+          uf: this.uf
+        };
+        this.limparInfos();
+        this.editar = false;
+
+      },
+      habilitarEdicao(index){
+        this.enderecoIndex = index;
+        this.editar = true;
+        console.log(this.enderecos[index]);
+          this.nome = this.enderecos[index].nome;
+          this.cep = this.enderecos[index].cep;
+          this.localidade = this.enderecos[index].localidade;
+          this.logradouro = this.enderecos[index].logradouro;
+          this.bairro = this.enderecos[index].bairro;
+          this.numero = this.enderecos[index].numero;
+          this.complemento = this.enderecos[index].complemento;
+          this.uf = this.enderecos[index].uf;
+      },
       removerEndereco(index) {
         this.enderecos.splice(index, 1);
       },
