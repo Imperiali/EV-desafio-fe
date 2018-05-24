@@ -1,7 +1,7 @@
 <template>
   <div>
-    <b-container>
-      <h1>Lista de endereços</h1>
+    <b-container class="panel">
+      <h1 class="alert alert-info">Lista de endereços</h1>
       <b-row>
         <b-col>
           <b-row>
@@ -25,7 +25,7 @@
             </b-col>
 
             <b-col>
-              <button class="btn btn-default" @click="getAdress(cep)">Enviar</button>
+              <button type="button" class="btn btn-outline-primary btn-sm" @click="getAdress(cep)">Enviar</button>
             </b-col>
 
           </b-row>
