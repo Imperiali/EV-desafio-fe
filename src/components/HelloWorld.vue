@@ -67,12 +67,16 @@
           <ul class="list-group">
             <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
               {{local.nome}} - {{local.cep}}
-              <span @click="getLatLong(i)" class="fas fa-map-marker"></span>
               <span @click="removerEndereco(i)" class="fas fa-times"></span>
               <span @click="habilitarEdicao(i)" class="fas fa-pencil-alt"></span>
-              <span @click="clima(i)" class="wi wi-day-sunny"></span>
-              - À {{ local.distancia }}km
-
+              {{ local.temperatura }}ºC
+              <span
+                class="wi"
+                :class="{ 'wi-day-sunny': local.temperatura >= 28,
+                          'wi-day-cloudy': local.temperatura < 28 && local.temperatura > 18,
+                          'wi-cloudy': local.temperatura <= 18}"></span>
+              <br/>
+               À {{ local.distancia }}km
               <a target="_blank" :href="'https://www.google.com/maps/dir/?api=1&origin=' + userLocalizacao.latitude + ',' + userLocalizacao.longitude + '&destination=' + local.lat + ',' + local.lng">
                 ir agora
               </a>
@@ -108,6 +112,7 @@ export default {
         numero: '',
         latitude:'',
         longitude:'',
+        temperatura:'',
         geoLocalTxtError: '',
         userLocalizacao: '',
         distancia:'',
@@ -142,16 +147,17 @@ export default {
           console.log(this.distancia);
         }
       },
-      clima(index){
-        let local = this.enderecos[index];
-        axios.get("http://samples.openweathermap.org/data/2.5/weather?lat=" +
-          local.lat +
-          "&lon=" +
-          local.lng +
-          "&appid=b6907d289e10d714a6e88b30761fae22",{
-            
-        }).then(result => {
-            console.log(result.status, result.headers, result.body);
+      getClima(){
+        let vm = this;
+        axios.get("http://api.apixu.com/v1/current.json?key=b423373a80a545d9b67185519182405&q=" +
+          vm.latitude +
+          "," +
+          vm.longitude).then(result => {
+            console.log(vm.latitude);
+            console.log(vm.longitude);
+            console.log(result.data.current.temp_c);
+            vm.temperatura = result.data.current.temp_c;
+            console.log(vm.temperatura);
           });
       },
       getLatLong() {
@@ -165,6 +171,8 @@ export default {
           '&key=AIzaSyBe993AXRz_3kvv88GVtwhmQH6_FpHjbFk').then( ret => {
             this.latitude = ret.data.results[0].geometry.location.lat;
             this.longitude = ret.data.results[0].geometry.location.lng;
+        }).then( ret2 =>{
+          this.getClima();
         });
         console.log(this.latitude);
         console.log(this.longitude);
@@ -186,6 +194,7 @@ export default {
       editaEndereco(){
         this.getLatLong();
         this.distanciaLinear();
+        this.getClima();
         this.enderecos[this.enderecoIndex] = {
           nome: this.nome,
           cep: this.cep,
@@ -197,7 +206,8 @@ export default {
           uf: this.uf,
           lat: this.latitude,
           lng: this.longitude,
-          distancia: this.distancia
+          distancia: this.distancia,
+          temperatura: this.temperatura
         };
         this.limparInfos();
         this.editar = false;
@@ -220,9 +230,9 @@ export default {
         this.enderecos.splice(index, 1);
       },
       adicionarEndereco() {
-
         this.getLatLong();
         this.distanciaLinear();
+        console.log(this.temperatura);
         this.enderecos.unshift({
           nome: this.nome,
           cep: this.cep,
@@ -234,7 +244,8 @@ export default {
           uf: this.uf,
           lat: this.latitude,
           lng: this.longitude,
-          distancia: this.distancia
+          distancia: this.distancia,
+          temperatura: this.temperatura
         });
         console.log('limpado campos');
         this.limparInfos();
@@ -250,7 +261,8 @@ export default {
         this.uf = '';
         this.latitude = '';
         this.longitude = '';
-        this.distancia = ''
+        this.distancia = '';
+        this.temperatura = '';
       },
       getAdress(cep) {
         // console.log(cep);
