@@ -6,9 +6,18 @@ import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import '../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss';
+import '../src/css/weather-icons.css';
+import '../src/css/weather-icons.min.css';
+import '../src/css/weather-icons-wind.css';
+import '../src/css/weather-icons-wind.min.css';
+
+import Cors from 'cors';
+
+
 
 
 Vue.use(BootstrapVue);
+Vue.use(Cors);
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
