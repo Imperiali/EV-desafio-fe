@@ -149,40 +149,53 @@ export default {
         //}
       },
       getClima(){
+        if(this.latitude === ''){
+          console.log('Nao tem lat!');
+        }
+        console.log(this.latitude);
         let vm = this;
         axios.get("https://api.apixu.com/v1/current.json?key=b423373a80a545d9b67185519182405&q=" +
-          vm.latitude +
+          this.latitude +
           "," +
-          vm.longitude).then(result => {
-            console.log(vm.latitude);
-            console.log(vm.longitude);
+          this.longitude).then(result => {
+            console.log(this.latitude);
+            console.log(this.longitude);
             console.log(result.data.current.temp_c);
-            vm.temperatura = result.data.current.temp_c;
-            console.log(vm.temperatura);
-          });
+            this.temperatura = result.data.current.temp_c;
+            console.log(this.temperatura);
+          }).then( ret3 =>{
+          // vm.distanciaLinear();
+          this.passandoDados();
+          console.log('pegou distancia');
+        });
       },
       getLatLong() {
         console.log('cheguei em Pegnado lat e log');
-        let vm = this;
+        let vm2 = this;
+        let lat = '';
+        let lng = '';
         axios.get('https://maps.googleapis.com/maps/api/geocode/json?address=' +
-          vm.numero +
+          vm2.numero +
           '+' +
-          vm.logradouro +
+          vm2.logradouro +
           ',+' +
-          vm.localidade +
+          vm2.localidade +
           '&key=AIzaSyBe993AXRz_3kvv88GVtwhmQH6_FpHjbFk').then( ret => {
+          let vm = this;
             console.log(ret);
-            vm.latitude = ret.data.results[0].geometry.location.lat;
             console.log(vm.latitude);
-            vm.longitude = ret.data.results[0].geometry.location.lng;
             console.log(vm.longitude);
+            this.longitude = ret.data.results[0].geometry.location.lng;
+            this.latitude = ret.data.results[0].geometry.location.lat;
+            console.log('lat response', this.latitude);
+            console.log('lng response', this.longitude);
         }).then( ret2 =>{
-          vm.getClima();
-        }).then( ret3 =>{
-          vm.distanciaLinear();
+          vm2.getClima();
+          vm2.distanciaLinear();
+          console.log('pegou clima');
         });
-        console.log(vm.latitude);
-        console.log(vm.longitude);
+        console.log(this.latitude);
+        console.log(this.longitude);
       },
       getLocation() {
         if (navigator.geolocation) {
@@ -237,8 +250,13 @@ export default {
         this.enderecos.splice(index, 1);
       },
       adicionarEndereco() {
+        console.log('Pega lat e long');
         this.getLatLong();
-        console.log(this.temperatura);
+
+
+
+      },
+      passandoDados(){
         this.enderecos.unshift({
           nome: this.nome,
           cep: this.cep,
@@ -253,7 +271,6 @@ export default {
           distancia: this.distancia,
           temperatura: this.temperatura
         });
-        console.log('limpado campos');
         this.limparInfos();
       },
       limparInfos() {
