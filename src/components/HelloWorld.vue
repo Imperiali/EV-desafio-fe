@@ -1,91 +1,100 @@
 <template>
   <div>
-    <b-container class="panel">
+    <div class="panel">
       <h1 class="alert alert-info">Lista de endereços</h1>
-      <b-row>
-        <b-col>
-          <b-row>
+      <div class="row">
+        <div class="col">
+          <div class="row">
 
-            <b-col>
+            <div class="col text-right">
               <label>Nome:</label>
-            </b-col>
-            <b-col>
-              <input class="input-sm" type="text" v-model="nome"/>
-            </b-col>
+            </div>
+            <div class="col">
+              <input class="form-control" type="text" v-model="nome"/>
+            </div>
 
-          </b-row>
-          <b-row>
+          </div>
+          <div class="row">
 
-            <b-col>
+            <div class="col-md-6 text-right">
               <label>Cep</label>
-            </b-col>
+            </div>
 
-            <b-col>
-              <input class="input-sm" type="number" v-model="cep"/>
-            </b-col>
+            <div class="col-md-4">
+              <input class="form-control" type="number" v-model="cep"/>
+            </div>
 
-            <b-col>
+            <div class="col-md-2">
               <button type="button" class="btn btn-outline-primary btn-sm" @click="getAdress(cep)">Enviar</button>
-            </b-col>
+            </div>
 
-          </b-row>
-          <b-row>
-            {{logradouro}} {{bairro}} {{localidade}}
-            {{numero}} {{complemento}}
-          </b-row>
-          <b-row>
+          </div>
+          <div class="row">
 
-            <b-col>
+            <div class="col text-right">
               <label>Numero:</label>
-            </b-col>
+            </div>
 
-            <b-col>
-              <input class="input-sm" type="number" v-model="numero"/>
-            </b-col>
+            <div class="col">
+              <input class="form-control" type="number" v-model="numero"/>
+            </div>
 
-          </b-row>
-          <b-row>
+          </div>
+          <div class="row">
 
-            <b-col>
+            <div class="col text-right">
               <label>Completemento:</label>
-            </b-col>
+            </div>
 
-            <b-col>
-              <input class="input-sm" type="text" v-model="complemento"/>
-            </b-col>
+            <div class="col">
+              <input class="form-control" type="text" v-model="complemento"/>
+            </div>
 
 
-          </b-row>
-          <b-row>
-            <b-col align-self="end">
+          </div>
+          <div class="row" v-if="logradouro !== ''">
+            <div class="col alert alert-success">
+              <span class="font-weight-bold alert-heading">{{logradouro}}</span>
+              <br/>
+              {{bairro}} {{localidade}} {{numero}} {{complemento}}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
               <button class="btn btn-default" v-if="!editar" @click="adicionarEndereco">Adicionar</button>
               <button class="btn btn-default" v-else @click="editaEndereco">Editar</button>
-            </b-col>
-          </b-row>
-        </b-col>
-        <b-col>
+            </div>
+          </div>
+        </div>
+        <div class="col">
           <ul class="list-group">
             <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
-              {{local.nome}} - {{local.cep}}
-              <span @click="removerEndereco(i)" class="fas fa-times"></span>
-              <span @click="habilitarEdicao(i)" class="fas fa-pencil-alt"></span>
-              {{ local.temperatura }}ºC
-              <span
-                class="wi"
-                :class="{ 'wi-day-sunny': local.temperatura >= 28,
-                          'wi-day-cloudy': local.temperatura < 28 && local.temperatura > 18,
-                          'wi-cloudy': local.temperatura <= 18}"></span>
-              <br/>
-               À {{ local.distancia }}km
-              <a target="_blank" :href="'https://www.google.com/maps/dir/?api=1&origin=' + userLocalizacao.latitude + ',' + userLocalizacao.longitude + '&destination=' + local.lat + ',' + local.lng">
-                ir agora
-              </a>
+              <div class="card">
+                <div class="card-header">
+                  {{local.nome}} - {{local.cep}}
+                  <span @click="removerEndereco(i)" class="fas fa-times"></span>
+                  <span @click="habilitarEdicao(i)" class="fas fa-pencil-alt"></span>
+                </div>
+                <div class="card-body">
+                  {{ local.temperatura }}ºC
+                  <span
+                    class="wi"
+                    :class="{ 'wi-day-sunny': local.temperatura >= 28,
+                            'wi-day-cloudy': local.temperatura < 28 && local.temperatura > 18,
+                            'wi-cloudy': local.temperatura <= 18}"></span>
+                  <br/>
+                  À {{ local.distancia }}km
+                  <a target="_blank" :href="'https://www.google.com/maps/dir/?api=1&origin=' + userLocalizacao.latitude + ',' + userLocalizacao.longitude + '&destination=' + local.lat + ',' + local.lng">
+                    ir agora
+                  </a>
+                </div>
+              </div>
             </li>
           </ul>
-        </b-col>
+        </div>
 
-      </b-row>
-    </b-container>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -338,5 +347,5 @@ a {
     <b-col> 1 of 3</b-col>
     <b-col> 2 of 3</b-col>
     <b-col> 3 of 3</b-col>
-  </b-row>
+  </div class="row">
 </b-container-->
