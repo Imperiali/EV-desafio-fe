@@ -138,18 +138,19 @@ export default {
     },
     methods: {
       distanciaLinear(){
-        console.log(this.userLocalizacao.latitude);
-        console.log(this.userLocalizacao.longitude);
-        console.log(this.latitude);
-        console.log(this.longitude);
-        if(this.latitude !== '' && this.longitude !== '') {
-          this.distancia = this.getDistanceFromLatLonInKm(this.userLocalizacao.latitude, this.userLocalizacao.longitude, this.latitude, this.longitude)
-          console.log(this.distancia);
-        }
+        let vm = this;
+        console.log(vm.userLocalizacao.latitude);
+        console.log(vm.userLocalizacao.longitude);
+        console.log(vm.latitude);
+        console.log(vm.longitude);
+        //if(vm.latitude !== '' && vm.longitude !== '') {
+          vm.distancia = vm.getDistanceFromLatLonInKm(vm.userLocalizacao.latitude, vm.userLocalizacao.longitude, vm.latitude, vm.longitude)
+          console.log(vm.distancia);
+        //}
       },
       getClima(){
         let vm = this;
-        axios.get("http://api.apixu.com/v1/current.json?key=b423373a80a545d9b67185519182405&q=" +
+        axios.get("https://api.apixu.com/v1/current.json?key=b423373a80a545d9b67185519182405&q=" +
           vm.latitude +
           "," +
           vm.longitude).then(result => {
@@ -162,20 +163,26 @@ export default {
       },
       getLatLong() {
         console.log('cheguei em Pegnado lat e log');
+        let vm = this;
         axios.get('https://maps.googleapis.com/maps/api/geocode/json?address=' +
-          this.numero +
+          vm.numero +
           '+' +
-          this.logradouro +
+          vm.logradouro +
           ',+' +
-          this.localidade +
+          vm.localidade +
           '&key=AIzaSyBe993AXRz_3kvv88GVtwhmQH6_FpHjbFk').then( ret => {
-            this.latitude = ret.data.results[0].geometry.location.lat;
-            this.longitude = ret.data.results[0].geometry.location.lng;
+            console.log(ret);
+            vm.latitude = ret.data.results[0].geometry.location.lat;
+            console.log(vm.latitude);
+            vm.longitude = ret.data.results[0].geometry.location.lng;
+            console.log(vm.longitude);
         }).then( ret2 =>{
-          this.getClima();
+          vm.getClima();
+        }).then( ret3 =>{
+          vm.distanciaLinear();
         });
-        console.log(this.latitude);
-        console.log(this.longitude);
+        console.log(vm.latitude);
+        console.log(vm.longitude);
       },
       getLocation() {
         if (navigator.geolocation) {
@@ -193,8 +200,8 @@ export default {
       },
       editaEndereco(){
         this.getLatLong();
-        this.distanciaLinear();
-        this.getClima();
+        //this.distanciaLinear();
+        //this.getClima();
         this.enderecos[this.enderecoIndex] = {
           nome: this.nome,
           cep: this.cep,
@@ -231,7 +238,6 @@ export default {
       },
       adicionarEndereco() {
         this.getLatLong();
-        this.distanciaLinear();
         console.log(this.temperatura);
         this.enderecos.unshift({
           nome: this.nome,
@@ -266,12 +272,13 @@ export default {
       },
       getAdress(cep) {
         // console.log(cep);
+        let vm = this;
         axios.get('https://viacep.com.br/ws/' + cep + '/json/').then(ret => {
           // console.log(ret);
-          this.logradouro = ret.data.logradouro;
-          this.bairro = ret.data.bairro;
-          this.localidade = ret.data.localidade;
-          this.uf = ret.data.uf;
+          vm.logradouro = ret.data.logradouro;
+          vm.bairro = ret.data.bairro;
+          vm.localidade = ret.data.localidade;
+          vm.uf = ret.data.uf;
         })
       },
       getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
