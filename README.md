@@ -30,6 +30,8 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 Neste repositório estarei realizando o desafio proposto pela Estante Virtual de Front-end, que é basicamente uma pagina para registrar e armazenar endereços.
 
-
 # imperiali.github.io
+
+PS.: Este código foi único e exclusivamente escrito por Igor Imperiali Fernandes. Agradeço amigo Ronan por me ceder seu Notebook para conseguir fazer alguns acertos durante a
+Google OnBoard, mas gostaria de deixar claro que Eu utilizei o notebook dele, e não há códigos de sua autoria neste repositório!
 
