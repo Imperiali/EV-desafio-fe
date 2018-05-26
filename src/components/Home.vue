@@ -90,14 +90,22 @@
         </template>
         <template v-else>
           <div class="col">
-            <input class="" type="text" placeholder="login" v-model="nome">
+            <input class="" type="text" placeholder="login" v-model="email">
+            <input class="" type="password" placeholder="senha" v-model="senha">
             <input class="btn btn-sm" type="submit" value="entrar" @click="logar">
+            <input class="btn btn-sm" type="submit" value="cadastrar" @click="cadastrar">
             <div class="row">
               <div class="col">
 
-                <span v-if="txtError !== ''"
+                <span v-if="loginErros.emailMsg !== ''"
                       :style="{'background-color': '#ffc107','color':'black'}"
-                      class="badge badge-warning font-weight-light">{{txtError}}</span>
+                      class="badge badge-warning font-weight-light">{{loginErros.emailMsg}}</span>
+                <span v-if="loginErros.senhaMsg !== ''"
+                      :style="{'background-color': '#ffc107','color':'black'}"
+                      class="badge badge-warning font-weight-light">{{loginErros.senhaMsg}}</span>
+                <span v-if="loginErros.outraMsg !== ''"
+                      :style="{'background-color': '#ffc107','color':'black'}"
+                      class="badge badge-warning font-weight-light">{{loginErros.outraMsg}}</span>
               </div>
             </div>
           </div>
@@ -161,6 +169,13 @@ export default {
         temperatura:'',
         distancia:'',
         txtError:'',
+        email: '',
+        senha: '',
+        loginErros:{
+          emailMsg:'',
+          senhaMsg:'',
+          outraMsg:''
+        },
         enderecos: []           /** Array de endereços */
       }
     },
@@ -189,10 +204,63 @@ export default {
     methods: {
       /** Começo de autenticação, bem simples, apenas verifica se o input está vazio */
       logar(){
-        if(this.nome !== ''){
-          this.login = true;
+        let vm = this;
+        let passou = true;
+        if(this.email !== '' && this.email.indexOf('@') > -1 && this.email.indexOf('.') > -1){
+          this.loginErros.emailMsg = '';
+          if(this.senha !== '' && this.senha.length >= 6) {
+            this.loginErros.senhaMsg = '';
+            Firebase.auth().signInWithEmailAndPassword(this.email, this.senha).catch(function(error) {
+              // Handle Errors here.
+
+              let errorCode = error.code;
+              let errorMessage = error.message;
+              console.log(errorCode);
+              console.log(errorMessage);
+              vm.loginErros.outraMsg = 'Erro ao logar! Verifique seu e-mail e senha, ou cadastre-se!';
+              passou = false
+              // ...
+            }).then( ret => {
+              if(passou === true){
+                this.login = true;
+                this.loginErros.outraMsg = '';
+              }
+            });
+          }else{
+            this.loginErros.senhaMsg = 'A senha precisa ter 6 digitos ou mais!'
+          }
         }else{
-          this.txtError = 'Qual o seu nome?'
+          this.loginErros.emailMsg = 'Seu e-mail não está correto!'
+        }
+      },
+      cadastrar(){
+        let passou = true;
+        let vm = this;
+        if(this.email !== '' && this.email.indexOf('@') > -1 && this.email.indexOf('.') > -1){
+          this.loginErros.emailMsg = '';
+          if(this.senha !== '' && this.senha.length >= 6) {
+            this.loginErros.senhaMsg = '';
+            Firebase.auth().createUserWithEmailAndPassword(this.email, this.senha).catch(function(error) {
+              // Handle Errors here.
+              let errorCode = error.code;
+              let errorMessage = error.message;
+              console.log(errorCode);
+              console.log(errorMessage);
+              vm.loginErros.outraMsg = 'Erro ao se cadastrar! Já não tem um cadastro?';
+              passou = false
+              // ...
+            }).then( ret => {
+              if(passou === true){
+                this.login = true;
+                this.loginErros.outraMsg = '';
+              }
+            });
+            // this.login = true;
+          }else{
+            this.loginErros.senhaMsg = 'A senha precisa ter 6 digitos ou mais!'
+          }
+        }else{
+          this.loginErros.emailMsg = 'Seu e-mail não está correto!'
         }
       },
       /** Metodo para enviar os dados de endereço para o Firebase */
