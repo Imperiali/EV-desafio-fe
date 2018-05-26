@@ -157,6 +157,7 @@ export default {
         userLocalizacao: '',
         enderecoIndex:'',
         nome: '',
+        id:'',
         cep: '',
         logradouro: '',
         complemento: '',
@@ -206,66 +207,75 @@ export default {
       logar(){
         let vm = this;
         let passou = true;
-        if(this.email !== '' && this.email.indexOf('@') > -1 && this.email.indexOf('.') > -1){
-          this.loginErros.emailMsg = '';
-          if(this.senha !== '' && this.senha.length >= 6) {
-            this.loginErros.senhaMsg = '';
-            Firebase.auth().signInWithEmailAndPassword(this.email, this.senha).catch(function(error) {
-              // Handle Errors here.
 
-              let errorCode = error.code;
-              let errorMessage = error.message;
-              console.log(errorCode);
-              console.log(errorMessage);
-              vm.loginErros.outraMsg = 'Erro ao logar! Verifique seu e-mail e senha, ou cadastre-se!';
-              passou = false
-              // ...
-            }).then( ret => {
-              if(passou === true){
-                this.login = true;
-                this.loginErros.outraMsg = '';
-              }
-            });
-          }else{
-            this.loginErros.senhaMsg = 'A senha precisa ter 6 digitos ou mais!'
-          }
-        }else{
-          this.loginErros.emailMsg = 'Seu e-mail não está correto!'
+        if(this.validadorDeLogin()){
+          Firebase.auth().signInWithEmailAndPassword(this.email, this.senha).catch(function(error) {
+            // Handle Errors here.
+
+            let errorCode = error.code;
+            let errorMessage = error.message;
+            console.log(errorCode);
+            console.log(errorMessage);
+            vm.loginErros.outraMsg = 'Erro ao logar! Verifique seu e-mail e senha, ou cadastre-se!';
+            passou = false
+            // ...
+          }).then( ret => {
+            if(passou === true){
+              this.login = true;
+              this.loginErros.outraMsg = '';
+              console.log(Firebase.auth().currentUser.uid);
+              this.id = Firebase.auth().currentUser.uid
+            }
+          });
         }
       },
       cadastrar(){
         let passou = true;
         let vm = this;
+
+        if(this.validadorDeLogin()){
+          Firebase.auth().createUserWithEmailAndPassword(this.email, this.senha).catch(function(error) {
+            // Handle Errors here.
+            let errorCode = error.code;
+            let errorMessage = error.message;
+            console.log(errorCode);
+            console.log(errorMessage);
+            vm.loginErros.outraMsg = 'Erro ao se cadastrar! Já não tem um cadastro?';
+            passou = false
+            // ...
+          }).then( ret => {
+            if(passou === true){
+              this.login = true;
+              this.loginErros.outraMsg = '';
+              console.log(Firebase.auth().currentUser.uid);
+              this.id = Firebase.auth().currentUser.uid
+            }
+          });
+          // this.login = true;
+        }
+      },
+      validadorDeLogin(){
+        let count = 0;
         if(this.email !== '' && this.email.indexOf('@') > -1 && this.email.indexOf('.') > -1){
           this.loginErros.emailMsg = '';
-          if(this.senha !== '' && this.senha.length >= 6) {
-            this.loginErros.senhaMsg = '';
-            Firebase.auth().createUserWithEmailAndPassword(this.email, this.senha).catch(function(error) {
-              // Handle Errors here.
-              let errorCode = error.code;
-              let errorMessage = error.message;
-              console.log(errorCode);
-              console.log(errorMessage);
-              vm.loginErros.outraMsg = 'Erro ao se cadastrar! Já não tem um cadastro?';
-              passou = false
-              // ...
-            }).then( ret => {
-              if(passou === true){
-                this.login = true;
-                this.loginErros.outraMsg = '';
-              }
-            });
-            // this.login = true;
-          }else{
-            this.loginErros.senhaMsg = 'A senha precisa ter 6 digitos ou mais!'
-          }
+          count ++;
         }else{
-          this.loginErros.emailMsg = 'Seu e-mail não está correto!'
+          this.loginErros.emailMsg = 'Seu e-mail não está correto!';
+          count --;
         }
+        if(this.senha !== '' && this.senha.length >= 6) {
+          this.loginErros.senhaMsg = '';
+          count ++
+        }else{
+          this.loginErros.senhaMsg = 'A senha precisa ter 6 digitos ou mais!';
+          count --
+        }
+        return count === 2
       },
       /** Metodo para enviar os dados de endereço para o Firebase */
       enviarProFirebase(){
         enderecoRef.push({
+          id: this.id,
           nome: this.nome,
           cep: this.cep,
           localidade: this.localidade,
@@ -334,7 +344,6 @@ export default {
       habilitarEdicao(index){
         this.enderecoIndex = index;
         this.liberarEdicao = true;
-        this.nome = this.enderecos[index].nome;
         this.cep = this.enderecos[index].cep;
         this.localidade = this.enderecos[index].localidade;
         this.logradouro = this.enderecos[index].logradouro;
@@ -371,7 +380,6 @@ export default {
       /** Altera os valores de um endereço especifico */
       editandoDados(){
         this.enderecos[this.enderecoIndex] = {
-          nome: this.nome,
           cep: this.cep,
           localidade: this.localidade,
           logradouro: this.logradouro,
@@ -391,6 +399,7 @@ export default {
       passandoDados(){
         this.enderecos.unshift({
           nome: this.nome,
+          id: this.id,
           cep: this.cep,
           localidade: this.localidade,
           logradouro: this.logradouro,
