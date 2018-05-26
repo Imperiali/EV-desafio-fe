@@ -5,7 +5,7 @@
       <div class="row">
         <template v-if="login === true">
           <div class="col">
-            
+
             <div class="row">
 
               <div class="col-md-6 text-right">
@@ -147,7 +147,7 @@ export default {
     },
     created() {
       let storageLocal = JSON.parse(localStorage.getItem('enderecos'));
-      console.log(storageLocal);
+
       if(storageLocal){
         this.enderecos = storageLocal;
       }
@@ -157,8 +157,6 @@ export default {
       enderecos() {
 
         localStorage.setItem('enderecos', JSON.stringify(this.enderecos));
-
-        console.log(JSON.parse(localStorage.getItem('enderecos')));
 
       }
     },
@@ -179,41 +177,24 @@ export default {
       },
       distanciaLinear(){
         let vm = this;
-        console.log(vm.userLocalizacao.latitude);
-        console.log(vm.userLocalizacao.longitude);
-        console.log(vm.latitude);
-        console.log(vm.longitude);
-        //if(vm.latitude !== '' && vm.longitude !== '') {
+
           vm.distancia = vm.getDistanceFromLatLonInKm(vm.userLocalizacao.latitude, vm.userLocalizacao.longitude, vm.latitude, vm.longitude)
-          console.log(vm.distancia);
-        //}
+
       },
       getClima(){
-        if(this.latitude === ''){
-          console.log('Nao tem lat!');
-        }
-        console.log(this.latitude);
-        let vm = this;
+
         axios.get("https://api.apixu.com/v1/current.json?key=b423373a80a545d9b67185519182405&q=" +
           this.latitude +
           "," +
           this.longitude).then(result => {
-            console.log(this.latitude);
-            console.log(this.longitude);
-            console.log(result.data.current.temp_c);
             this.temperatura = result.data.current.temp_c;
-            console.log(this.temperatura);
+
           }).then( ret3 =>{
-          // vm.distanciaLinear();
           this.passandoDados();
-          console.log('pegou distancia');
         });
       },
       getLatLong() {
-        console.log('cheguei em Pegnado lat e log');
         let vm2 = this;
-        let lat = '';
-        let lng = '';
         axios.get('https://maps.googleapis.com/maps/api/geocode/json?address=' +
           vm2.numero +
           '+' +
@@ -221,21 +202,12 @@ export default {
           ',+' +
           vm2.localidade +
           '&key=AIzaSyBe993AXRz_3kvv88GVtwhmQH6_FpHjbFk').then( ret => {
-          let vm = this;
-            console.log(ret);
-            console.log(vm.latitude);
-            console.log(vm.longitude);
             this.longitude = ret.data.results[0].geometry.location.lng;
             this.latitude = ret.data.results[0].geometry.location.lat;
-            console.log('lat response', this.latitude);
-            console.log('lng response', this.longitude);
         }).then( ret2 =>{
           vm2.getClima();
           vm2.distanciaLinear();
-          console.log('pegou clima');
         });
-        console.log(this.latitude);
-        console.log(this.longitude);
       },
       getLocation() {
         if (navigator.geolocation) {
@@ -245,7 +217,6 @@ export default {
         }
       },
       showPosition(position) {
-        console.log(position);
         this.userLocalizacao = {
           "latitude": position.coords.latitude,
           "longitude": position.coords.longitude
@@ -253,8 +224,6 @@ export default {
       },
       editaEndereco(){
         this.getLatLong();
-        //this.distanciaLinear();
-        //this.getClima();
         this.enderecos[this.enderecoIndex] = {
           nome: this.nome,
           cep: this.cep,
@@ -276,25 +245,20 @@ export default {
       habilitarEdicao(index){
         this.enderecoIndex = index;
         this.editar = true;
-        console.log(this.enderecos[index]);
-          this.nome = this.enderecos[index].nome;
-          this.cep = this.enderecos[index].cep;
-          this.localidade = this.enderecos[index].localidade;
-          this.logradouro = this.enderecos[index].logradouro;
-          this.bairro = this.enderecos[index].bairro;
-          this.numero = this.enderecos[index].numero;
-          this.complemento = this.enderecos[index].complemento;
-          this.uf = this.enderecos[index].uf;
+        this.nome = this.enderecos[index].nome;
+        this.cep = this.enderecos[index].cep;
+        this.localidade = this.enderecos[index].localidade;
+        this.logradouro = this.enderecos[index].logradouro;
+        this.bairro = this.enderecos[index].bairro;
+        this.numero = this.enderecos[index].numero;
+        this.complemento = this.enderecos[index].complemento;
+        this.uf = this.enderecos[index].uf;
       },
       removerEndereco(index) {
         this.enderecos.splice(index, 1);
       },
       adicionarEndereco() {
-        console.log('Pega lat e long');
         this.getLatLong();
-
-
-
       },
       passandoDados(){
         this.enderecos.unshift({
@@ -314,7 +278,6 @@ export default {
         this.limparInfos();
       },
       limparInfos() {
-        console.log('limpei tudo');
         this.cep = '';
         this.localidade = '';
         this.logradouro = '';
@@ -328,10 +291,8 @@ export default {
         this.temperatura = '';
       },
       getAdress(cep) {
-        // console.log(cep);
         let vm = this;
         axios.get('https://viacep.com.br/ws/' + cep + '/json/').then(ret => {
-          // console.log(ret);
           vm.logradouro = ret.data.logradouro;
           vm.bairro = ret.data.bairro;
           vm.localidade = ret.data.localidade;
