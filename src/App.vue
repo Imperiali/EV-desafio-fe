@@ -17,13 +17,21 @@ export default {
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="scss" scoped>
+  @import './css/main.scss';
+  // Bootstrap and its default variables
+  @import "../node_modules/bootstrap/scss/bootstrap";
+  @import "../node_modules/bootstrap/scss/functions";
+  @import "../node_modules/bootstrap/scss/variables";
+  @import "../node_modules/bootstrap/scss/mixins";
+
+  $cyan:    pink;
+
+  .panel-heading {
+    background-color: $cyan;
+  }
+
 </style>
+<!-- style>
+
+</style -->

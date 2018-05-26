@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css?family=Oswald&subset=latin-ext');
+
+$cyan:    pink;
+
+.btn {
+
+}
+
+.panel-heading {
+  background-color: $cyan;
+}
+
+#app {
+  font-family: 'Oswald', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}

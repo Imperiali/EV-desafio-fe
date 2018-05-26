@@ -1,97 +1,112 @@
 <template>
   <div>
     <div class="panel">
-      <h1 class="alert alert-info">Lista de endereços</h1>
+      <h1 class="panel panel-heading">Lista de endereços</h1>
       <div class="row">
-        <div class="col">
-          <div class="row">
+        <template v-if="login === true">
+          <div class="col">
+            
+            <div class="row">
 
-            <div class="col text-right">
-              <label>Nome:</label>
+              <div class="col-md-6 text-right">
+                <label>Cep</label>
+              </div>
+
+              <div class="col-md-4">
+                <input class="form-control" type="number" v-model="cep"/>
+              </div>
+
+              <div class="col-md-2">
+                <button type="button" class="btn btn-outline-primary btn-sm" @click="getAdress(cep)">Enviar</button>
+              </div>
+
             </div>
-            <div class="col">
-              <input class="form-control" type="text" v-model="nome"/>
+            <div class="row">
+
+              <div class="col text-right">
+                <label>Número:</label>
+              </div>
+
+              <div class="col">
+                <input class="form-control" type="number" v-model="numero"/>
+              </div>
+
             </div>
+            <div class="row">
 
-          </div>
-          <div class="row">
+              <div class="col text-right">
+                <label>Completemento:</label>
+              </div>
 
-            <div class="col-md-6 text-right">
-              <label>Cep</label>
+              <div class="col">
+                <input class="form-control" type="text" v-model="complemento"/>
+              </div>
+
+
             </div>
-
-            <div class="col-md-4">
-              <input class="form-control" type="number" v-model="cep"/>
+            <div class="row" v-if="logradouro !== ''">
+              <div class="col alert alert-success">
+                <span class="font-weight-bold alert-heading">{{logradouro}}</span>
+                <br/>
+                {{bairro}} {{localidade}} {{numero}} {{complemento}}
+              </div>
             </div>
-
-            <div class="col-md-2">
-              <button type="button" class="btn btn-outline-primary btn-sm" @click="getAdress(cep)">Enviar</button>
-            </div>
-
-          </div>
-          <div class="row">
-
-            <div class="col text-right">
-              <label>Numero:</label>
-            </div>
-
-            <div class="col">
-              <input class="form-control" type="number" v-model="numero"/>
-            </div>
-
-          </div>
-          <div class="row">
-
-            <div class="col text-right">
-              <label>Completemento:</label>
-            </div>
-
-            <div class="col">
-              <input class="form-control" type="text" v-model="complemento"/>
-            </div>
-
-
-          </div>
-          <div class="row" v-if="logradouro !== ''">
-            <div class="col alert alert-success">
-              <span class="font-weight-bold alert-heading">{{logradouro}}</span>
-              <br/>
-              {{bairro}} {{localidade}} {{numero}} {{complemento}}
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <button class="btn btn-default" v-if="!editar" @click="adicionarEndereco">Adicionar</button>
-              <button class="btn btn-default" v-else @click="editaEndereco">Editar</button>
+            <div class="row text-right">
+              <div class="col">
+                <button class="btn btn-default" v-if="!editar" @click="adicionarEndereco">Adicionar</button>
+                <button class="btn btn-default" v-else @click="editaEndereco">Editar</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="col">
-          <ul class="list-group">
-            <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
-              <div class="card">
-                <div class="card-header">
-                  {{local.nome}} - {{local.cep}}
-                  <span @click="removerEndereco(i)" class="fas fa-times"></span>
-                  <span @click="habilitarEdicao(i)" class="fas fa-pencil-alt"></span>
-                </div>
-                <div class="card-body">
-                  {{ local.temperatura }}ºC
-                  <span
-                    class="wi"
-                    :class="{ 'wi-day-sunny': local.temperatura >= 28,
+          <div class="col">
+
+            <a v-show="enderecos.length > 0" class="btn btn-outline-light" @click="salvarLista">Salvar</a>
+
+            <ul class="list-group">
+              <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
+                <div class="card">
+                  <div class="card-header">
+                    {{local.nome}} - {{local.cep}}
+                    <span @click="removerEndereco(i)" class="fas fa-times"></span>
+                    <span @click="habilitarEdicao(i)" class="fas fa-pencil-alt"></span>
+                  </div>
+                  <div class="card-body">
+                    {{ local.temperatura }}ºC
+                    <span
+                      class="wi"
+                      :class="{ 'wi-day-sunny': local.temperatura >= 28,
                             'wi-day-cloudy': local.temperatura < 28 && local.temperatura > 18,
                             'wi-cloudy': local.temperatura <= 18}"></span>
-                  <br/>
-                  À {{ local.distancia }}km
-                  <a target="_blank" :href="'https://www.google.com/maps/dir/?api=1&origin=' + userLocalizacao.latitude + ',' + userLocalizacao.longitude + '&destination=' + local.lat + ',' + local.lng">
-                    ir agora
-                  </a>
+                    <br/>
+                    À {{ local.distancia }}km
+                    <a target="_blank" :href="'https://www.google.com/maps/dir/?api=1&origin=' + userLocalizacao.latitude + ',' + userLocalizacao.longitude + '&destination=' + local.lat + ',' + local.lng">
+                      ir agora
+                    </a>
+                  </div>
                 </div>
+              </li>
+            </ul>
+          </div>
+        </template>
+        <template v-else>
+          <div class="col">
+            <input class="" type="text" placeholder="login" v-model="nome">
+            <input class="btn btn-sm" type="submit" value="entrar" @click="logar">
+            <div class="row">
+              <div class="col">
+
+                <span v-if="txtError !== ''"
+                      :style="{'background-color': '#ffc107','color':'black'}"
+                      class="badge badge-warning font-weight-light">{{txtError}}</span>
               </div>
-            </li>
-          </ul>
-        </div>
+            </div>
+          </div>
+
+
+
+
+        </template>
+
 
       </div>
     </div>
@@ -109,6 +124,7 @@ export default {
   name: 'HelloWorld',
     data() {
       return {
+        login: false,
         editar: false,
         enderecoIndex:'',
         nome: '',
@@ -125,6 +141,7 @@ export default {
         geoLocalTxtError: '',
         userLocalizacao: '',
         distancia:'',
+        txtError:'',
         enderecos: []
       }
     },
@@ -146,6 +163,20 @@ export default {
       }
     },
     methods: {
+      logar(){
+        if(this.nome !== ''){
+          this.login = true;
+        }else{
+          this.txtError = 'Qual o seu nome?'
+        }
+      },
+      salvarLista(){
+        if(this.enderecos !== ''){
+          axios.post("https://ev-desafio-fe.firebaseio.com/teste.json", this.enderecos).then( ret => {
+            console.log(ret);
+          });
+        }
+      },
       distanciaLinear(){
         let vm = this;
         console.log(vm.userLocalizacao.latitude);
@@ -325,7 +356,15 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss" scoped>
+
+$cyan:    #00bdb1;
+
+.panel-heading {
+  background-color: $cyan;
+  color: black;
+}
+
 h1, h2 {
   font-weight: normal;
 }
@@ -341,11 +380,3 @@ a {
   color: #42b983;
 }
 </style>
-
-<!--b-container>
-  <b-row>
-    <b-col> 1 of 3</b-col>
-    <b-col> 2 of 3</b-col>
-    <b-col> 3 of 3</b-col>
-  </div class="row">
-</b-container-->

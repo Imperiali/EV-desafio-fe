@@ -13,7 +13,9 @@ import '../src/css/weather-icons-wind.min.css';
 
 import Cors from 'cors';
 
-
+const app = new Vue({
+  render: h => h(App),
+}).$mount('#app');
 
 
 Vue.use(BootstrapVue);
