@@ -67,7 +67,7 @@
                 <div class="card">
                   <div class="card-header">
                     {{local.nome}} - {{local.cep}}
-                    <span @click="removerEndereco(i)" class="fas fa-times"></span>
+                    <span @click="removerEndereco(local, i)" class="fas fa-times"></span>
                     <span @click="habilitarEdicao(i)" class="fas fa-pencil-alt"></span>
                   </div>
                   <div class="card-body">
@@ -117,8 +117,23 @@
 import axios from 'axios';
 import VueLocalStorage from 'vue-localstorage'
 import Cors from 'cors';
+import Firebase from 'firebase'
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
+
+let config = {
+  apiKey: "AIzaSyBBNWfzEF-nFHqxLUYefWaBC96JPo3L5pQ",
+  authDomain: "ev-desafio-fe.firebaseapp.com",
+  databaseURL: "https://ev-desafio-fe.firebaseio.com/",
+  projectId: "ev-desafio-fe",
+  storageBucket: "ev-desafio-fe.appspot.com",
+  messagingSenderId: "37547990089"
+};
+
+let app = Firebase.initializeApp(config);
+let db = app.database();
+
+let enderecoRef = db.ref('teste');
 
 export default {
   name: 'HelloWorld',
@@ -145,6 +160,9 @@ export default {
         enderecos: []
       }
     },
+    firebase:{
+        enderecosdb: enderecoRef
+    },
     created() {
       let storageLocal = JSON.parse(localStorage.getItem('enderecos'));
 
@@ -170,9 +188,10 @@ export default {
       },
       salvarLista(){
         if(this.enderecos !== ''){
-          axios.post("https://ev-desafio-fe.firebaseio.com/teste.json", this.enderecos).then( ret => {
-            console.log(ret);
-          });
+          enderecoRef.push(this.enderecos);
+          //axios.post("https://ev-desafio-fe.firebaseio.com/teste.json", this.enderecos).then( ret => {
+          //  console.log(ret);
+          //});
         }
       },
       distanciaLinear(){
@@ -254,7 +273,9 @@ export default {
         this.complemento = this.enderecos[index].complemento;
         this.uf = this.enderecos[index].uf;
       },
-      removerEndereco(index) {
+      removerEndereco(local, index) {
+        //enderecoRef.child(local['.key']).remove();
+        
         this.enderecos.splice(index, 1);
       },
       adicionarEndereco() {

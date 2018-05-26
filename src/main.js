@@ -3,6 +3,7 @@
 import Vue from 'vue';
 import App from './App';
 import BootstrapVue from 'bootstrap-vue';
+import VueFire from 'vuefire';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import '../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss';
@@ -20,6 +21,7 @@ const app = new Vue({
 
 Vue.use(BootstrapVue);
 Vue.use(Cors);
+Vue.use(VueFire);
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
