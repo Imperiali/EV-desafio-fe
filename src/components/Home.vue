@@ -17,7 +17,7 @@
               </div>
 
               <div class="col-md-2">
-                <button type="button" class="btn btn-outline-primary btn-sm" @click="getAdress(cep)">Enviar</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" @click="pegarEndereco(cep)">Enviar</button>
               </div>
 
             </div>
@@ -53,14 +53,14 @@
             </div>
             <div class="row text-right">
               <div class="col">
-                <button class="btn btn-default" v-if="!editar" @click="adicionarEndereco">Adicionar</button>
+                <button class="btn btn-default" v-if="!liberarEdicao" @click="adicionarEndereco">Adicionar</button>
                 <button class="btn btn-default" v-else @click="editaEndereco">Editar</button>
               </div>
             </div>
           </div>
           <div class="col">
 
-            <a v-show="enderecos.length > 0" class="btn btn-outline-light" @click="salvarLista">Salvar</a>
+            <!--a v-show="enderecos.length > 0" class="btn btn-outline-light" @click="salvarLista">Salvar</a-->
 
             <ul class="list-group">
               <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
@@ -114,13 +114,15 @@
 </template>
 
 <script>
+
+  /** importando o conteudo necessário */
 import axios from 'axios';
 import VueLocalStorage from 'vue-localstorage'
-import Cors from 'cors';
 import Firebase from 'firebase'
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
+  /** Configurações do Firebase */
 let config = {
   apiKey: "AIzaSyBBNWfzEF-nFHqxLUYefWaBC96JPo3L5pQ",
   authDomain: "ev-desafio-fe.firebaseapp.com",
@@ -135,12 +137,16 @@ let db = app.database();
 
 let enderecoRef = db.ref('teste');
 
+  /** Vue */
 export default {
-  name: 'HelloWorld',
-    data() {
+  name: 'Home', /** Nome do componente */
+    data() {    /** Variaveis do projeto */
       return {
-        login: false,
-        editar: false,
+        login: false,           /** "Validador" de login */
+        liberarEdicao: false,          /** Libera a edição */
+        editar: false,                 /** Habilita a edição */
+        geoLocalTxtError: '',
+        userLocalizacao: '',
         enderecoIndex:'',
         nome: '',
         cep: '',
@@ -153,32 +159,35 @@ export default {
         latitude:'',
         longitude:'',
         temperatura:'',
-        geoLocalTxtError: '',
-        userLocalizacao: '',
         distancia:'',
         txtError:'',
-        enderecos: []
+        enderecos: []           /** Array de endereços */
       }
     },
-    firebase:{
+    firebase:{                  /** Referenciando Firebase */
         enderecosdb: enderecoRef
     },
-    created() {
+    created() {                 /** Verificar localstorage ao ciclo de vida do Vue chegar em Created */
       let storageLocal = JSON.parse(localStorage.getItem('enderecos'));
-
-      if(storageLocal){
+      if(storageLocal !== null){         /** Tendo conteudo no localstorage, loga e popula a lista de enderecos */
+        if(storageLocal.length === 0){
+          return localStorage.clear();
+        }
         this.enderecos = storageLocal;
+        this.nome = storageLocal.nome;
+        this.login = true;
       }
-      this.getLocation();
+      this.pegarLocalizacao();
+      console.log(this.userLocalizacao);
     },
     watch: {
+      /** Observaa o array de enderecos, e a cada evento, atualiza o localStorage */
       enderecos() {
-
         localStorage.setItem('enderecos', JSON.stringify(this.enderecos));
-
       }
     },
     methods: {
+      /** Começo de autenticação, bem simples, apenas verifica se o input está vazio */
       logar(){
         if(this.nome !== ''){
           this.login = true;
@@ -186,21 +195,29 @@ export default {
           this.txtError = 'Qual o seu nome?'
         }
       },
-      salvarLista(){
-        if(this.enderecos !== ''){
-          enderecoRef.push(this.enderecos);
-          //axios.post("https://ev-desafio-fe.firebaseio.com/teste.json", this.enderecos).then( ret => {
-          //  console.log(ret);
-          //});
-        }
+      /** Metodo para enviar os dados de endereço para o Firebase */
+      enviarProFirebase(){
+        enderecoRef.push({
+          nome: this.nome,
+          cep: this.cep,
+          localidade: this.localidade,
+          logradouro: this.logradouro,
+          bairro: this.bairro,
+          numero: this.numero,
+          complemento: this.complemento,
+          uf: this.uf,
+          lat: this.latitude,
+          lng: this.longitude,
+          distancia: this.distancia,
+          temperatura: this.temperatura
+        });
       },
+      /** Agrega a propriedade Distancia, a distancia em linha reta do endereço cadastrado para o local atual do usuario */
       distanciaLinear(){
-        let vm = this;
-
-          vm.distancia = vm.getDistanceFromLatLonInKm(vm.userLocalizacao.latitude, vm.userLocalizacao.longitude, vm.latitude, vm.longitude)
-
+        this.distancia = this.pegarDistanciaComLatLongEmKm(this.userLocalizacao.latitude, this.userLocalizacao.longitude, this.latitude, this.longitude)
       },
-      getClima(){
+      /** Metodo para resgatar a temperatura atual do endereço cadastrado */
+      pegarClima(){
 
         axios.get("https://api.apixu.com/v1/current.json?key=b423373a80a545d9b67185519182405&q=" +
           this.latitude +
@@ -208,41 +225,83 @@ export default {
           this.longitude).then(result => {
             this.temperatura = result.data.current.temp_c;
 
-          }).then( ret3 =>{
-          this.passandoDados();
+          }).then( ret2 => {
+            console.log(this.editar);
+            this.criarOuEditar(this.editar);
         });
       },
-      getLatLong() {
-        let vm2 = this;
+      /** Metodo para pegar a Latitude e Longitude do endereço cadastrado */
+      pegarLatLong() {
+        let vm = this;
         axios.get('https://maps.googleapis.com/maps/api/geocode/json?address=' +
-          vm2.numero +
+          vm.numero +
           '+' +
-          vm2.logradouro +
+          vm.logradouro +
           ',+' +
-          vm2.localidade +
+          vm.localidade +
           '&key=AIzaSyBe993AXRz_3kvv88GVtwhmQH6_FpHjbFk').then( ret => {
             this.longitude = ret.data.results[0].geometry.location.lng;
             this.latitude = ret.data.results[0].geometry.location.lat;
         }).then( ret2 =>{
-          vm2.getClima();
-          vm2.distanciaLinear();
+          vm.distanciaLinear();
+          vm.pegarClima();
         });
       },
-      getLocation() {
+      /** Metodo para detectar a localização atual do usuário */
+      pegarLocalizacao() {
         if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(this.showPosition);
+          navigator.geolocation.getCurrentPosition(this.mostrarLocalizacao);
         } else {
           this.geoLocalTxtError = "Geolocalização não suportada por este navegador!";
         }
       },
-      showPosition(position) {
+      /** Metodo para agregar a Latitude e a Longitude atual do usuario as variaveis globais */
+      mostrarLocalizacao(position) {
         this.userLocalizacao = {
           "latitude": position.coords.latitude,
           "longitude": position.coords.longitude
         };
       },
+      /** Leva os dados cadastrados para os inputs para começar a edição do endereço */
+      habilitarEdicao(index){
+        this.enderecoIndex = index;
+        this.liberarEdicao = true;
+        this.nome = this.enderecos[index].nome;
+        this.cep = this.enderecos[index].cep;
+        this.localidade = this.enderecos[index].localidade;
+        this.logradouro = this.enderecos[index].logradouro;
+        this.bairro = this.enderecos[index].bairro;
+        this.numero = this.enderecos[index].numero;
+        this.complemento = this.enderecos[index].complemento;
+        this.uf = this.enderecos[index].uf;
+      },
+      /** Exclui um endereço especifico. Faltando implementar ao firebase */
+      removerEndereco(local, index) {
+        // enderecoRef.child(local['.key']).remove();
+
+        this.enderecos.splice(index, 1);
+      },
+      /** Metodo para edicar um endereço especifico */
       editaEndereco(){
-        this.getLatLong();
+        this.pegarLatLong();
+        this.editar = true;
+        this.liberarEdicao = false;
+      },
+      /** Adiciona um endereço novo a lista de endereços */
+      adicionarEndereco() {
+        this.pegarLatLong();
+        this.editar = false;
+      },
+      /** Metodo que detecta se a ação do usuário será de editar ou criar um endereço */
+      criarOuEditar(descisao){
+        if(!descisao){
+          this.passandoDados()
+        }else{
+          this.editandoDados()
+        }
+      },
+      /** Altera os valores de um endereço especifico */
+      editandoDados(){
         this.enderecos[this.enderecoIndex] = {
           nome: this.nome,
           cep: this.cep,
@@ -257,30 +316,10 @@ export default {
           distancia: this.distancia,
           temperatura: this.temperatura
         };
+        this.enviarProFirebase();
         this.limparInfos();
-        this.editar = false;
-
       },
-      habilitarEdicao(index){
-        this.enderecoIndex = index;
-        this.editar = true;
-        this.nome = this.enderecos[index].nome;
-        this.cep = this.enderecos[index].cep;
-        this.localidade = this.enderecos[index].localidade;
-        this.logradouro = this.enderecos[index].logradouro;
-        this.bairro = this.enderecos[index].bairro;
-        this.numero = this.enderecos[index].numero;
-        this.complemento = this.enderecos[index].complemento;
-        this.uf = this.enderecos[index].uf;
-      },
-      removerEndereco(local, index) {
-        //enderecoRef.child(local['.key']).remove();
-        
-        this.enderecos.splice(index, 1);
-      },
-      adicionarEndereco() {
-        this.getLatLong();
-      },
+      /** Agrega mais um endereço a lista */
       passandoDados(){
         this.enderecos.unshift({
           nome: this.nome,
@@ -296,8 +335,10 @@ export default {
           distancia: this.distancia,
           temperatura: this.temperatura
         });
+        this.enviarProFirebase();
         this.limparInfos();
       },
+      /** Limpa os campos */
       limparInfos() {
         this.cep = '';
         this.localidade = '';
@@ -311,7 +352,8 @@ export default {
         this.distancia = '';
         this.temperatura = '';
       },
-      getAdress(cep) {
+      /** Recupera o endereço através do CEP */
+      pegarEndereco(cep) {
         let vm = this;
         axios.get('https://viacep.com.br/ws/' + cep + '/json/').then(ret => {
           vm.logradouro = ret.data.logradouro;
@@ -320,9 +362,10 @@ export default {
           vm.uf = ret.data.uf;
         })
       },
-      getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
-        let R = 6371; // Radius of the earth in km
-        let dLat = this.deg2rad(lat2-lat1); // deg2rad below
+      /** Calcula a distancia entre o endereço atual do usuário e o endereço cadastrado */
+      pegarDistanciaComLatLongEmKm(lat1,lon1,lat2,lon2) {
+        let R = 6371; // Raio da terra em km
+        let dLat = this.deg2rad(lat2-lat1); // deg2rad abaixo
         let dLon = this.deg2rad(lon2-lon1);
         let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
         Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
@@ -330,6 +373,7 @@ export default {
         let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         return Math.floor(R * c);
       },
+      /** Converte o número em graus ao equivalente em radianos */
       deg2rad(deg) {
         return deg * (Math.PI/180)
       }
