@@ -4,6 +4,7 @@ import Vue from 'vue';
 import App from './App';
 import BootstrapVue from 'bootstrap-vue';
 import VueFire from 'vuefire';
+import './firebase';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import '../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss';
@@ -12,15 +13,12 @@ import '../src/css/weather-icons.min.css';
 import '../src/css/weather-icons-wind.css';
 import '../src/css/weather-icons-wind.min.css';
 
-import Cors from 'cors';
-
 const app = new Vue({
   render: h => h(App),
 }).$mount('#app');
 
 
 Vue.use(BootstrapVue);
-Vue.use(Cors);
 Vue.use(VueFire);
 Vue.config.productionTip = false;
 

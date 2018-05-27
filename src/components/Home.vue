@@ -1,11 +1,15 @@
 <template>
   <div>
     <div class="panel">
-      <h1 class="panel panel-heading">Lista de endereços</h1>
-      <div class="row">
-        <template v-if="login === true">
+      <div class="panel panel-heading">
+        <div class="row">
+          <div class="col-7 text-right"><h1 class="d-inline">Lista de endereços </h1></div>
+          <div class="col-5 text-right"><i v-if="login" class="fas fa-sign-out-alt" @click="logout"></i></div>
+        </div>
+      </div>
+      <template v-if="login">
+        <div class="row">
           <div class="col">
-
             <div class="row">
 
               <div class="col-md-6 text-right">
@@ -44,11 +48,20 @@
 
 
             </div>
+          </div>
+          <div class="col">
             <div class="row" v-if="logradouro !== ''">
               <div class="col alert alert-success">
                 <span class="font-weight-bold alert-heading">{{logradouro}}</span>
                 <br/>
                 {{bairro}} {{localidade}} {{numero}} {{complemento}}
+              </div>
+            </div>
+            <div class="row" v-else>
+              <div class="col alert alert-info">
+                <span class="font-weight-bold alert-heading">Adicione um endereço ao lado digitando seu cep!</span>
+                <br/>
+                Caso tenha algum problema, entre em <a target="_blank" href="https://www.linkedin.com/in/igor-imperiali-823958102/">contato!</a>
               </div>
             </div>
             <div class="row text-right">
@@ -58,27 +71,31 @@
               </div>
             </div>
           </div>
+        </div>
+        <hr>
+        <div class="row">
           <div class="col">
-
-            <!--a v-show="enderecos.length > 0" class="btn btn-outline-light" @click="salvarLista">Salvar</a-->
-
+            <p>Todas as listas</p>
             <ul class="list-group">
-              <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
+              <li class="list-group-item" v-for="(local, i) in enderecodb" :key="local['.key']">
                 <div class="card">
                   <div class="card-header">
-                    {{local.nome}} - {{local.cep}}
-                    <span @click="removerEndereco(local, i)" class="fas fa-times"></span>
-                    <span @click="habilitarEdicao(i)" class="fas fa-pencil-alt"></span>
+                    <span @click="teste(local)" >{{local.localidade}} - {{local.cep}}</span>
+                    <template v-if="local.id === id">
+                      <span @click="removerEndereco(local)" class="fas fa-times"></span>
+                      <span @click="habilitarEdicao(local, local['.key'])" class="fas fa-pencil-alt"></span>
+                    </template>
                   </div>
                   <div class="card-body">
+                    {{ local.logradouro }}, {{ local.numero }} <br>
                     {{ local.temperatura }}ºC
                     <span
                       class="wi"
                       :class="{ 'wi-day-sunny': local.temperatura >= 28,
                             'wi-day-cloudy': local.temperatura < 28 && local.temperatura > 18,
                             'wi-cloudy': local.temperatura <= 18}"></span>
-                    <br/>
-                    À {{ local.distancia }}km
+                    -
+                    À {{ local.distancia }}km -
                     <a target="_blank" :href="'https://www.google.com/maps/dir/?api=1&origin=' + userLocalizacao.latitude + ',' + userLocalizacao.longitude + '&destination=' + local.lat + ',' + local.lng">
                       ir agora
                     </a>
@@ -87,36 +104,59 @@
               </li>
             </ul>
           </div>
-        </template>
-        <template v-else>
           <div class="col">
-            <input class="" type="text" placeholder="login" v-model="email">
-            <input class="" type="password" placeholder="senha" v-model="senha">
-            <input class="btn btn-sm" type="submit" value="entrar" @click="logar">
-            <input class="btn btn-sm" type="submit" value="cadastrar" @click="cadastrar">
-            <div class="row">
-              <div class="col">
-
-                <span v-if="loginErros.emailMsg !== ''"
-                      :style="{'background-color': '#ffc107','color':'black'}"
-                      class="badge badge-warning font-weight-light">{{loginErros.emailMsg}}</span>
-                <span v-if="loginErros.senhaMsg !== ''"
-                      :style="{'background-color': '#ffc107','color':'black'}"
-                      class="badge badge-warning font-weight-light">{{loginErros.senhaMsg}}</span>
-                <span v-if="loginErros.outraMsg !== ''"
-                      :style="{'background-color': '#ffc107','color':'black'}"
-                      class="badge badge-warning font-weight-light">{{loginErros.outraMsg}}</span>
+          <!--a v-show="enderecos.length > 0" class="btn btn-outline-light" @click="salvarLista">Salvar</a-->
+          <p>Sua lista</p>
+          <ul class="list-group">
+            <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
+              <div class="card">
+                <div class="card-header">
+                  <span @click="teste(local)" >{{local.localidade}} - {{local.cep}}</span>
+                </div>
+                <div class="card-body">
+                  {{ local.logradouro }}, {{ local.numero }} <br>
+                  {{ local.temperatura }}ºC
+                  <span
+                    class="wi"
+                    :class="{ 'wi-day-sunny': local.temperatura >= 28,
+                          'wi-day-cloudy': local.temperatura < 28 && local.temperatura > 18,
+                          'wi-cloudy': local.temperatura <= 18}"></span>
+                  -
+                  À {{ local.distancia }}km -
+                  <a target="_blank" :href="'https://www.google.com/maps/dir/?api=1&origin=' + userLocalizacao.latitude + ',' + userLocalizacao.longitude + '&destination=' + local.lat + ',' + local.lng">
+                    ir agora
+                  </a>
+                </div>
               </div>
+            </li>
+          </ul>
+        </div>
+        </div>
+      </template>
+      <template v-else>
+        <div class="row">
+          <div class="col">
+          <input class="" type="text" placeholder="login" v-model="email">
+          <input class="" type="password" placeholder="senha" v-model="senha">
+          <input class="btn btn-sm" type="submit" value="entrar" @click="logar">
+          <input class="btn btn-sm" type="submit" value="cadastrar" @click="cadastrar">
+          <div class="row">
+            <div class="col">
+
+              <span v-if="loginErros.emailMsg !== ''"
+                    :style="{'background-color': '#ffc107','color':'black'}"
+                    class="badge badge-warning font-weight-light">{{loginErros.emailMsg}}</span>
+              <span v-if="loginErros.senhaMsg !== ''"
+                    :style="{'background-color': '#ffc107','color':'black'}"
+                    class="badge badge-warning font-weight-light">{{loginErros.senhaMsg}}</span>
+              <span v-if="loginErros.outraMsg !== ''"
+                    :style="{'background-color': '#ffc107','color':'black'}"
+                    class="badge badge-warning font-weight-light">{{loginErros.outraMsg}}</span>
             </div>
           </div>
-
-
-
-
-        </template>
-
-
-      </div>
+        </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -126,24 +166,10 @@
   /** importando o conteudo necessário */
 import axios from 'axios';
 import VueLocalStorage from 'vue-localstorage'
-import Firebase from 'firebase'
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
-
-  /** Configurações do Firebase */
-let config = {
-  apiKey: "AIzaSyBBNWfzEF-nFHqxLUYefWaBC96JPo3L5pQ",
-  authDomain: "ev-desafio-fe.firebaseapp.com",
-  databaseURL: "https://ev-desafio-fe.firebaseio.com/",
-  projectId: "ev-desafio-fe",
-  storageBucket: "ev-desafio-fe.appspot.com",
-  messagingSenderId: "37547990089"
-};
-
-let app = Firebase.initializeApp(config);
-let db = app.database();
-
-let enderecoRef = db.ref('teste');
+import { enderecoRef } from '../firebase';
+import Firebase from 'firebase';
 
   /** Vue */
 export default {
@@ -156,7 +182,7 @@ export default {
         geoLocalTxtError: '',
         userLocalizacao: '',
         enderecoIndex:'',
-        nome: '',
+        chaveDeEdicao:'',
         id:'',
         cep: '',
         logradouro: '',
@@ -177,21 +203,32 @@ export default {
           senhaMsg:'',
           outraMsg:''
         },
+        enderecodb:'',
+        //filtro:'',
         enderecos: []           /** Array de endereços */
       }
     },
-    firebase:{                  /** Referenciando Firebase */
-        enderecosdb: enderecoRef
+    firebase: {                  /** Referenciando Firebase */
+      enderecodb: enderecoRef
+      // enderecodb: enderecoRef.orderByChild('id').equalTo(Firebase.auth().currentUser.uid)
     },
-    created() {                 /** Verificar localstorage ao ciclo de vida do Vue chegar em Created */
+    created() {
+      /** Verifica se tem id de usuario e agraga a variavel global */
+      if(Firebase.auth().currentUser.uid){
+        this.id = Firebase.auth().currentUser.uid;
+        this.login = true;
+      }else {
+        this.id = '';
+        this.login = false;
+      }
+      /** Verificar localstorage ao ciclo de vida do Vue chegar em Created */
       let storageLocal = JSON.parse(localStorage.getItem('enderecos'));
       if(storageLocal !== null){         /** Tendo conteudo no localstorage, loga e popula a lista de enderecos */
         if(storageLocal.length === 0){
           return localStorage.clear();
         }
-        this.enderecos = storageLocal;
-        this.nome = storageLocal.nome;
-        this.login = true;
+      this.enderecos = storageLocal;
+      this.login = true;
       }
       this.pegarLocalizacao();
       console.log(this.userLocalizacao);
@@ -203,57 +240,68 @@ export default {
       }
     },
     methods: {
-      /** Começo de autenticação, bem simples, apenas verifica se o input está vazio */
+      /** Separando lista do usuário atual para todas as listas do sistema */
+      popularListaComEnderecosDoUsuario(){
+        let filtro = enderecoRef.orderByChild('id').equalTo(Firebase.auth().currentUser.uid);
+        filtro.on('value', ret=>{
+          let vm = this;
+          vm.enderecos = ret.val()
+        });
+      },
+      /** Simples metodo de logout via Firebase */
+      logout(){
+        Firebase.auth().signOut().then();
+        this.login = false;
+      },
+      /** Login via Firebase */
       logar(){
         let vm = this;
         let passou = true;
 
         if(this.validadorDeLogin()){
           Firebase.auth().signInWithEmailAndPassword(this.email, this.senha).catch(function(error) {
-            // Handle Errors here.
-
             let errorCode = error.code;
             let errorMessage = error.message;
             console.log(errorCode);
             console.log(errorMessage);
             vm.loginErros.outraMsg = 'Erro ao logar! Verifique seu e-mail e senha, ou cadastre-se!';
             passou = false
-            // ...
           }).then( ret => {
             if(passou === true){
               this.login = true;
               this.loginErros.outraMsg = '';
               console.log(Firebase.auth().currentUser.uid);
-              this.id = Firebase.auth().currentUser.uid
+              this.id = Firebase.auth().currentUser.uid;
+              this.popularListaComEnderecosDoUsuario();
             }
           });
         }
       },
+      /** Cadastro via Firebase */
       cadastrar(){
         let passou = true;
         let vm = this;
 
         if(this.validadorDeLogin()){
           Firebase.auth().createUserWithEmailAndPassword(this.email, this.senha).catch(function(error) {
-            // Handle Errors here.
             let errorCode = error.code;
             let errorMessage = error.message;
             console.log(errorCode);
             console.log(errorMessage);
             vm.loginErros.outraMsg = 'Erro ao se cadastrar! Já não tem um cadastro?';
             passou = false
-            // ...
           }).then( ret => {
             if(passou === true){
               this.login = true;
               this.loginErros.outraMsg = '';
               console.log(Firebase.auth().currentUser.uid);
-              this.id = Firebase.auth().currentUser.uid
+              this.id = Firebase.auth().currentUser.uid;
+              this.popularListaComEnderecosDoUsuario();
             }
           });
-          // this.login = true;
         }
       },
+      /** Faz a validação dos inputs antes de executar a autenticação */
       validadorDeLogin(){
         let count = 0;
         if(this.email !== '' && this.email.indexOf('@') > -1 && this.email.indexOf('.') > -1){
@@ -276,7 +324,6 @@ export default {
       enviarProFirebase(){
         enderecoRef.push({
           id: this.id,
-          nome: this.nome,
           cep: this.cep,
           localidade: this.localidade,
           logradouro: this.logradouro,
@@ -304,7 +351,11 @@ export default {
             this.temperatura = result.data.current.temp_c;
 
           }).then( ret2 => {
-            console.log(this.editar);
+            this.criarOuEditar(this.editar);
+        }).catch( ret => {
+            console.log('deu ruim na api de clima...', ret);
+            this.temperatura = 'erro';
+            console.log('Indo sem clima =/');
             this.criarOuEditar(this.editar);
         });
       },
@@ -341,22 +392,20 @@ export default {
         };
       },
       /** Leva os dados cadastrados para os inputs para começar a edição do endereço */
-      habilitarEdicao(index){
-        this.enderecoIndex = index;
+      habilitarEdicao(local, chave){
+        this.chaveDeEdicao = chave;
         this.liberarEdicao = true;
-        this.cep = this.enderecos[index].cep;
-        this.localidade = this.enderecos[index].localidade;
-        this.logradouro = this.enderecos[index].logradouro;
-        this.bairro = this.enderecos[index].bairro;
-        this.numero = this.enderecos[index].numero;
-        this.complemento = this.enderecos[index].complemento;
-        this.uf = this.enderecos[index].uf;
+        this.cep = local.cep;
+        this.localidade = local.localidade;
+        this.logradouro = local.logradouro;
+        this.bairro = local.bairro;
+        this.numero = local.numero;
+        this.complemento = local.complemento;
+        this.uf = local.uf;
       },
       /** Exclui um endereço especifico. Faltando implementar ao firebase */
-      removerEndereco(local, index) {
-        // enderecoRef.child(local['.key']).remove();
-
-        this.enderecos.splice(index, 1);
+      removerEndereco(local) {
+        enderecoRef.child(local['.key']).remove();
       },
       /** Metodo para edicar um endereço especifico */
       editaEndereco(){
@@ -366,8 +415,10 @@ export default {
       },
       /** Adiciona um endereço novo a lista de endereços */
       adicionarEndereco() {
-        this.pegarLatLong();
-        this.editar = false;
+        if(this.cep.length === 8){
+          this.pegarLatLong();
+          this.editar = false;
+        }
       },
       /** Metodo que detecta se a ação do usuário será de editar ou criar um endereço */
       criarOuEditar(descisao){
@@ -379,26 +430,7 @@ export default {
       },
       /** Altera os valores de um endereço especifico */
       editandoDados(){
-        this.enderecos[this.enderecoIndex] = {
-          cep: this.cep,
-          localidade: this.localidade,
-          logradouro: this.logradouro,
-          bairro: this.bairro,
-          numero: this.numero,
-          complemento: this.complemento,
-          uf: this.uf,
-          lat: this.latitude,
-          lng: this.longitude,
-          distancia: this.distancia,
-          temperatura: this.temperatura
-        };
-        this.enviarProFirebase();
-        this.limparInfos();
-      },
-      /** Agrega mais um endereço a lista */
-      passandoDados(){
-        this.enderecos.unshift({
-          nome: this.nome,
+        enderecoRef.child(this.chaveDeEdicao).update({
           id: this.id,
           cep: this.cep,
           localidade: this.localidade,
@@ -412,7 +444,13 @@ export default {
           distancia: this.distancia,
           temperatura: this.temperatura
         });
+        this.popularListaComEnderecosDoUsuario();
+        this.limparInfos();
+      },
+      /** Agrega mais um endereço a lista */
+      passandoDados(){
         this.enviarProFirebase();
+        this.popularListaComEnderecosDoUsuario();
         this.limparInfos();
       },
       /** Limpa os campos */
@@ -462,7 +500,11 @@ export default {
 <style lang="scss" scoped>
 
 $cyan:    #00bdb1;
+$alert-border-radius: 44px;
 
+.alert{
+  border-radius: $alert-border-radius;
+}
 .panel-heading {
   background-color: $cyan;
   color: black;
