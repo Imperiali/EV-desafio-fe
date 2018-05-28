@@ -399,13 +399,11 @@ export default {
           distancia: this.distancia,
           temperatura: this.temperatura
         });
-        this.popularListaComEnderecosDoUsuario();
         this.limparInfos();
       },
       /** Agrega mais um endereço a lista */
       passandoDados(){
         this.enviarProFirebase();
-        this.popularListaComEnderecosDoUsuario();
         this.limparInfos();
       },
       /** Limpa os campos */
