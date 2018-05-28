@@ -180,7 +180,7 @@ export default {
     },
     /** Referenciando Firebase */
     firebase: {
-        enderecodb: enderecoRef
+        enderecodb: enderecoRef.orderByChild("id")
     },
     /** Verificar localstorage ao ciclo de vida do Vue chegar em Created */
     created() {
@@ -230,7 +230,6 @@ export default {
         this.login = true;
         this.loginErros.outraMsg = '';
         this.id = Firebase.auth().currentUser.uid;
-        this.popularListaComEnderecosDoUsuario();
         localStorage.setItem('user', JSON.stringify({
           uid : Firebase.auth().currentUser.uid
         }))
