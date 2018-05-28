@@ -7,8 +7,8 @@
           <div class="col-5 text-right"><i v-if="login" class="fas fa-sign-out-alt" @click="logout"></i></div>
         </div>
       </div>
-      <template v-if="login">
         <div class="row">
+          <template v-if="login">
           <div class="col">
             <div class="row">
 
@@ -71,6 +71,29 @@
               </div>
             </div>
           </div>
+          </template>
+          <template v-else>
+            <div class="col">
+              <input class="" type="text" placeholder="login" v-model="email">
+              <input class="" type="password" placeholder="senha" v-model="senha">
+              <input class="btn btn-sm" type="submit" value="entrar" @click="logar">
+              <input class="btn btn-sm" type="submit" value="cadastrar" @click="cadastrar">
+              <div class="row">
+                <div class="col">
+
+            <span v-if="loginErros.emailMsg !== ''"
+                  :style="{'background-color': '#ffc107','color':'black'}"
+                  class="badge badge-warning font-weight-light">{{loginErros.emailMsg}}</span>
+                  <span v-if="loginErros.senhaMsg !== ''"
+                        :style="{'background-color': '#ffc107','color':'black'}"
+                        class="badge badge-warning font-weight-light">{{loginErros.senhaMsg}}</span>
+                  <span v-if="loginErros.outraMsg !== ''"
+                        :style="{'background-color': '#ffc107','color':'black'}"
+                        class="badge badge-warning font-weight-light">{{loginErros.outraMsg}}</span>
+                </div>
+              </div>
+            </div>
+          </template>
         </div>
         <hr>
         <div class="row">
@@ -104,59 +127,7 @@
               </li>
             </ul>
           </div>
-          <div class="col">
-          <!--a v-show="enderecos.length > 0" class="btn btn-outline-light" @click="salvarLista">Salvar</a-->
-          <p>Sua lista</p>
-          <ul class="list-group">
-            <li class="list-group-item" v-for="(local, i) in enderecos" :key="i">
-              <div class="card">
-                <div class="card-header">
-                  <span @click="teste(local)" >{{local.localidade}} - {{local.cep}}</span>
-                </div>
-                <div class="card-body">
-                  {{ local.logradouro }}, {{ local.numero }} <br>
-                  {{ local.temperatura }}ºC
-                  <span
-                    class="wi"
-                    :class="{ 'wi-day-sunny': local.temperatura >= 28,
-                          'wi-day-cloudy': local.temperatura < 28 && local.temperatura > 18,
-                          'wi-cloudy': local.temperatura <= 18}"></span>
-                  -
-                  À {{ local.distancia }}km -
-                  <a target="_blank" :href="'https://www.google.com/maps/dir/?api=1&origin=' + userLocalizacao.latitude + ',' + userLocalizacao.longitude + '&destination=' + local.lat + ',' + local.lng">
-                    ir agora
-                  </a>
-                </div>
-              </div>
-            </li>
-          </ul>
         </div>
-        </div>
-      </template>
-      <template v-else>
-        <div class="row">
-          <div class="col">
-          <input class="" type="text" placeholder="login" v-model="email">
-          <input class="" type="password" placeholder="senha" v-model="senha">
-          <input class="btn btn-sm" type="submit" value="entrar" @click="logar">
-          <input class="btn btn-sm" type="submit" value="cadastrar" @click="cadastrar">
-          <div class="row">
-            <div class="col">
-
-              <span v-if="loginErros.emailMsg !== ''"
-                    :style="{'background-color': '#ffc107','color':'black'}"
-                    class="badge badge-warning font-weight-light">{{loginErros.emailMsg}}</span>
-              <span v-if="loginErros.senhaMsg !== ''"
-                    :style="{'background-color': '#ffc107','color':'black'}"
-                    class="badge badge-warning font-weight-light">{{loginErros.senhaMsg}}</span>
-              <span v-if="loginErros.outraMsg !== ''"
-                    :style="{'background-color': '#ffc107','color':'black'}"
-                    class="badge badge-warning font-weight-light">{{loginErros.outraMsg}}</span>
-            </div>
-          </div>
-        </div>
-        </div>
-      </template>
     </div>
   </div>
 </template>
@@ -204,53 +175,39 @@ export default {
           outraMsg:''
         },
         enderecodb:'',
-        //filtro:'',
+        zerouId:'',
         enderecos: []           /** Array de endereços */
       }
     },
     firebase: {                  /** Referenciando Firebase */
-      enderecodb: enderecoRef
-      // enderecodb: enderecoRef.orderByChild('id').equalTo(Firebase.auth().currentUser.uid)
+        enderecodb: enderecoRef
     },
+    /** Verificar localstorage ao ciclo de vida do Vue chegar em Created */
     created() {
       /** Verifica se tem id de usuario e agraga a variavel global */
-      if(Firebase.auth().currentUser.uid){
-        this.id = Firebase.auth().currentUser.uid;
-        this.login = true;
-      }else {
-        this.id = '';
-        this.login = false;
-      }
-      /** Verificar localstorage ao ciclo de vida do Vue chegar em Created */
-      let storageLocal = JSON.parse(localStorage.getItem('enderecos'));
-      if(storageLocal !== null){         /** Tendo conteudo no localstorage, loga e popula a lista de enderecos */
+
+      let storageLocal = JSON.parse(localStorage.getItem('user'));
+      if(storageLocal !== null){
         if(storageLocal.length === 0){
           return localStorage.clear();
         }
-      this.enderecos = storageLocal;
-      this.login = true;
+        this.id = storageLocal.uid;
+        this.login = true;
       }
       this.pegarLocalizacao();
       console.log(this.userLocalizacao);
-    },
-    watch: {
-      /** Observaa o array de enderecos, e a cada evento, atualiza o localStorage */
-      enderecos() {
-        localStorage.setItem('enderecos', JSON.stringify(this.enderecos));
-      }
+      console.log(this.id);
     },
     methods: {
       /** Separando lista do usuário atual para todas as listas do sistema */
       popularListaComEnderecosDoUsuario(){
-        let filtro = enderecoRef.orderByChild('id').equalTo(Firebase.auth().currentUser.uid);
-        filtro.on('value', ret=>{
-          let vm = this;
-          vm.enderecos = ret.val()
-        });
+        // enderecoRef.orderByChild('id').equalTo(this.id);
       },
       /** Simples metodo de logout via Firebase */
       logout(){
         Firebase.auth().signOut().then();
+        localStorage.clear();
+        this.id = '';
         this.login = false;
       },
       /** Login via Firebase */
@@ -265,7 +222,8 @@ export default {
             console.log(errorCode);
             console.log(errorMessage);
             vm.loginErros.outraMsg = 'Erro ao logar! Verifique seu e-mail e senha, ou cadastre-se!';
-            passou = false
+            passou = false;
+            Firebase.auth().setPersistence(Firebase.auth.Auth.Pesistence.local);
           }).then( ret => {
             if(passou === true){
               this.login = true;
@@ -273,6 +231,9 @@ export default {
               console.log(Firebase.auth().currentUser.uid);
               this.id = Firebase.auth().currentUser.uid;
               this.popularListaComEnderecosDoUsuario();
+              localStorage.setItem('user', JSON.stringify({
+                uid : Firebase.auth().currentUser.uid
+              }))
             }
           });
         }
@@ -289,7 +250,8 @@ export default {
             console.log(errorCode);
             console.log(errorMessage);
             vm.loginErros.outraMsg = 'Erro ao se cadastrar! Já não tem um cadastro?';
-            passou = false
+            passou = false;
+            Firebase.auth().setPersistence(Firebase.auth.Auth.Pesistence.local);
           }).then( ret => {
             if(passou === true){
               this.login = true;
@@ -297,6 +259,9 @@ export default {
               console.log(Firebase.auth().currentUser.uid);
               this.id = Firebase.auth().currentUser.uid;
               this.popularListaComEnderecosDoUsuario();
+              localStorage.setItem('user', JSON.stringify({
+                uid : Firebase.auth().currentUser.uid
+              }))
             }
           });
         }
