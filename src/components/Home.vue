@@ -3,8 +3,9 @@
     <div class="panel">
       <div class="panel panel-heading">
         <div class="row">
-          <div class="col-7 text-right"><h1 class="d-inline">Lista de endereços </h1></div>
-          <div class="col-5 text-right"><i v-if="login" class="fas fa-sign-out-alt" @click="logout"></i></div>
+          <div class="col-3"></div>
+          <div class="col-6"><h1 class="d-inline">Lista de endereços </h1></div>
+          <div class="col-3 text-right"><i v-if="login" class="fas fa-sign-out-alt" @click="logout"></i></div>
         </div>
       </div>
         <div class="row">
@@ -102,7 +103,7 @@
             <ul class="list-group">
               <li class="list-group-item" v-for="(local, i) in enderecodb" :key="local['.key']">
                 <div class="card">
-                  <div class="card-header">
+                  <div class="card-header" :style="[local.id === id ? {backgroundColor : '#aafbaa'} : {backgroundColor :  '#e2dfdf'}]">
                     <span @click="teste(local)" >{{local.localidade}} - {{local.cep}}</span>
                     <template v-if="local.id === id">
                       <span @click="removerEndereco(local)" class="fas fa-times"></span>
@@ -175,17 +176,15 @@ export default {
           outraMsg:''
         },
         enderecodb:'',
-        zerouId:'',
-        enderecos: []           /** Array de endereços */
       }
     },
-    firebase: {                  /** Referenciando Firebase */
+    /** Referenciando Firebase */
+    firebase: {
         enderecodb: enderecoRef
     },
     /** Verificar localstorage ao ciclo de vida do Vue chegar em Created */
     created() {
       /** Verifica se tem id de usuario e agraga a variavel global */
-
       let storageLocal = JSON.parse(localStorage.getItem('user'));
       if(storageLocal !== null){
         if(storageLocal.length === 0){
@@ -194,15 +193,10 @@ export default {
         this.id = storageLocal.uid;
         this.login = true;
       }
+      /** Solicita a localização do usuário */
       this.pegarLocalizacao();
-      console.log(this.userLocalizacao);
-      console.log(this.id);
     },
     methods: {
-      /** Separando lista do usuário atual para todas as listas do sistema */
-      popularListaComEnderecosDoUsuario(){
-        // enderecoRef.orderByChild('id').equalTo(this.id);
-      },
       /** Simples metodo de logout via Firebase */
       logout(){
         Firebase.auth().signOut().then();
@@ -226,17 +220,20 @@ export default {
             Firebase.auth().setPersistence(Firebase.auth.Auth.Pesistence.local);
           }).then( ret => {
             if(passou === true){
-              this.login = true;
-              this.loginErros.outraMsg = '';
-              console.log(Firebase.auth().currentUser.uid);
-              this.id = Firebase.auth().currentUser.uid;
-              this.popularListaComEnderecosDoUsuario();
-              localStorage.setItem('user', JSON.stringify({
-                uid : Firebase.auth().currentUser.uid
-              }))
+              this.persistirUsuario();
             }
           });
         }
+      },
+      /** Persiste os dados do usuário localmente */
+      persistirUsuario(){
+        this.login = true;
+        this.loginErros.outraMsg = '';
+        this.id = Firebase.auth().currentUser.uid;
+        this.popularListaComEnderecosDoUsuario();
+        localStorage.setItem('user', JSON.stringify({
+          uid : Firebase.auth().currentUser.uid
+        }))
       },
       /** Cadastro via Firebase */
       cadastrar(){
@@ -254,14 +251,7 @@ export default {
             Firebase.auth().setPersistence(Firebase.auth.Auth.Pesistence.local);
           }).then( ret => {
             if(passou === true){
-              this.login = true;
-              this.loginErros.outraMsg = '';
-              console.log(Firebase.auth().currentUser.uid);
-              this.id = Firebase.auth().currentUser.uid;
-              this.popularListaComEnderecosDoUsuario();
-              localStorage.setItem('user', JSON.stringify({
-                uid : Firebase.auth().currentUser.uid
-              }))
+              this.persistirUsuario();
             }
           });
         }
@@ -308,7 +298,7 @@ export default {
       },
       /** Metodo para resgatar a temperatura atual do endereço cadastrado */
       pegarClima(){
-
+      /** API aparetemente fora do ar :/ */
         axios.get("https://api.apixu.com/v1/current.json?key=b423373a80a545d9b67185519182405&q=" +
           this.latitude +
           "," +
