@@ -1,4 +1,4 @@
-# ev_desafio_fe
+# Desafio de Front-end da Estante Virtual
 
 > desafio de front end proposto pela estante virtual
 
@@ -26,11 +26,11 @@ npm test
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
-#Resume
+# Resumo
 
 Neste repositório estarei realizando o desafio proposto pela Estante Virtual de Front-end, que é basicamente uma pagina para registrar e armazenar endereços.
 
-# imperiali.github.io
+# Obs
 
 PS.: Este código foi único e exclusivamente escrito por Igor Imperiali Fernandes. Agradeço amigo Ronan por me ceder seu Notebook para conseguir fazer alguns acertos durante a
 Google OnBoard, mas gostaria de deixar claro que Eu utilizei o notebook dele, e não há códigos de sua autoria neste repositório!
